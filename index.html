@@ -3,15 +3,16 @@
 <head>
 <meta charset="utf-8" />
 <title>시그표 오버레이</title>
-<meta name="viewport" content="width=720, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Cute+Font&family=Do+Hyeon&family=East+Sea+Dokdo&family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&family=Hi+Melody&family=Jua&family=Nanum+Gothic:wght@400;700;800&family=Nanum+Pen+Script&family=Noto+Sans+KR:wght@400;500;600;700;800&family=Share+Tech+Mono&family=Sunflower:wght@300;500;700&display=swap" rel="stylesheet" />
 <style>
   *, *::before, *::after { box-sizing: border-box; }
   html, body {
     margin: 0; padding: 0;
-    width: 720px; height: 1280px;          /* 9:16 세로 라이브 기준 */
+    width:  var(--canvas-w, 300px);
+    height: var(--canvas-h, 400px);
     background: transparent;
     overflow: hidden;
     font-family: var(--font-family, 'Noto Sans KR', sans-serif);
@@ -19,11 +20,10 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  /* ─ 우측 회전 패널 ─ */
   #pages-panel {
     position: absolute;
-    top: 30px; right: 10px;
-    width: 290px;
+    top: 0; left: 0;
+    width: 100%;
     font-family: var(--font-family);
     filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
   }
@@ -42,6 +42,7 @@
     width: 100%;
     position: absolute;
     top: 0; left: 0;
+    font-family: var(--font-family);
   }
   .page-card.is-active { opacity: 1; position: relative; }
   .page-card .amount {
@@ -51,19 +52,21 @@
     font-variant-numeric: tabular-nums;
     text-align: right;
     white-space: nowrap;
+    line-height: 1.25;
   }
   .page-card .label {
     color: var(--label-color);
     font-size: var(--label-size);
     font-weight: var(--label-weight);
     white-space: nowrap;
+    line-height: 1.25;
   }
 
-  /* 연결 상태 표시 (?preview=1 또는 ?debug=1 일 때 외에는 매우 흐릿) */
   #status {
     position: fixed; left: 4px; bottom: 4px;
     font-size: 10px; color: rgba(255,255,255,0.25);
     pointer-events: none; user-select: none;
+    text-shadow: 0 0 4px rgba(0,0,0,0.8);
   }
   #status.error { color: rgba(255, 80, 80, 0.7); }
 </style>
@@ -76,24 +79,29 @@
 import {
   rootRef, onValue
 } from "./shared.js";
-import { THEMES, DEFAULT_DATA, applyTheme, normalizeData } from "./shared.js";
+import {
+  THEMES, DEFAULT_DATA, applyTheme, applyPageOverride, normalizeData
+} from "./shared.js";
 
 const $status = document.getElementById("status");
 const $pages  = document.getElementById("pages-panel");
 const root    = document.documentElement;
 
+const params = new URLSearchParams(location.search);
+const urlW = params.get("w"), urlH = params.get("h");
+
 let state = DEFAULT_DATA;
 let currentPageIdx = 0;
 let rotateTimer = null;
 
-// 초기 테마/트랜지션
-applyTheme(root, state.config.activeTheme);
+applyTheme(root, state.config.activeTheme, state.config.fontFamily);
+applyCanvas();
 root.style.setProperty("--transition-ms", state.config.transitionMs + "ms");
 
-// Firebase 구독
 onValue(rootRef, (snap) => {
   state = normalizeData(snap.val());
-  applyTheme(root, state.config.activeTheme);
+  applyTheme(root, state.config.activeTheme, state.config.fontFamily);
+  applyCanvas();
   root.style.setProperty("--transition-ms", state.config.transitionMs + "ms");
   renderPages();
   restartRotation();
@@ -105,17 +113,20 @@ onValue(rootRef, (snap) => {
   $status.classList.add("error");
 });
 
+function applyCanvas() {
+  const w = urlW || state.config.canvasWidth  || 300;
+  const h = urlH || state.config.canvasHeight || 400;
+  root.style.setProperty("--canvas-w", w + "px");
+  root.style.setProperty("--canvas-h", h + "px");
+}
+
 function renderPages() {
   $pages.innerHTML = "";
   state.pages.forEach((p, i) => {
     const card = document.createElement("div");
     card.className = "page-card";
     card.dataset.idx = i;
-    // 페이지별 테마 override
-    if (p.theme && THEMES[p.theme]) {
-      const t = THEMES[p.theme];
-      for (const [k, v] of Object.entries(t.vars)) card.style.setProperty(k, v);
-    }
+    applyPageOverride(card, p, state.config.fontFamily);
     for (const it of (p.items || [])) {
       const a = document.createElement("div"); a.className = "amount"; a.textContent = it.amount || "";
       const l = document.createElement("div"); l.className = "label";  l.textContent = it.label  || "";
@@ -142,10 +153,7 @@ function restartRotation() {
   }, Math.max(1500, state.config.pageInterval | 0));
 }
 
-// URL ?preview=1 일 때 status 라벨 숨김
-if (new URLSearchParams(location.search).get("preview") === "1") {
-  $status.style.display = "none";
-}
+if (params.get("preview") === "1") $status.style.display = "none";
 </script>
 </body>
 </html>

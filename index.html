@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<title>시그표 오버레이</title>
+<meta name="viewport" content="width=720, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    width: 720px; height: 1280px;          /* 9:16 세로 라이브 기준 */
+    background: transparent;
+    overflow: hidden;
+    font-family: var(--font-family, 'Noto Sans KR', sans-serif);
+    color: #fff;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ─ 우측 회전 패널 ─ */
+  #pages-panel {
+    position: absolute;
+    top: 30px; right: 10px;
+    width: 290px;
+    font-family: var(--font-family);
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+  }
+  .page-card {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--panel-radius);
+    padding: var(--panel-padding);
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--row-gap) 16px;
+    align-items: baseline;
+    text-shadow: var(--text-shadow);
+    opacity: 0;
+    transition: opacity var(--transition-ms, 500ms) ease;
+    width: 100%;
+    position: absolute;
+    top: 0; left: 0;
+  }
+  .page-card.is-active { opacity: 1; position: relative; }
+  .page-card .amount {
+    color: var(--amount-color);
+    font-size: var(--amount-size);
+    font-weight: var(--amount-weight);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    white-space: nowrap;
+  }
+  .page-card .label {
+    color: var(--label-color);
+    font-size: var(--label-size);
+    font-weight: var(--label-weight);
+    white-space: nowrap;
+  }
+
+  /* 연결 상태 표시 (?preview=1 또는 ?debug=1 일 때 외에는 매우 흐릿) */
+  #status {
+    position: fixed; left: 4px; bottom: 4px;
+    font-size: 10px; color: rgba(255,255,255,0.25);
+    pointer-events: none; user-select: none;
+  }
+  #status.error { color: rgba(255, 80, 80, 0.7); }
+</style>
+</head>
+<body>
+  <div id="pages-panel"></div>
+  <div id="status">connecting…</div>
+
+<script type="module">
+import {
+  rootRef, onValue
+} from "./shared.js";
+import { THEMES, DEFAULT_DATA, applyTheme, normalizeData } from "./shared.js";
+
+const $status = document.getElementById("status");
+const $pages  = document.getElementById("pages-panel");
+const root    = document.documentElement;
+
+let state = DEFAULT_DATA;
+let currentPageIdx = 0;
+let rotateTimer = null;
+
+// 초기 테마/트랜지션
+applyTheme(root, state.config.activeTheme);
+root.style.setProperty("--transition-ms", state.config.transitionMs + "ms");
+
+// Firebase 구독
+onValue(rootRef, (snap) => {
+  state = normalizeData(snap.val());
+  applyTheme(root, state.config.activeTheme);
+  root.style.setProperty("--transition-ms", state.config.transitionMs + "ms");
+  renderPages();
+  restartRotation();
+  $status.textContent = "live";
+  $status.classList.remove("error");
+}, (err) => {
+  console.error(err);
+  $status.textContent = "DB 연결 실패: " + err.message;
+  $status.classList.add("error");
+});
+
+function renderPages() {
+  $pages.innerHTML = "";
+  state.pages.forEach((p, i) => {
+    const card = document.createElement("div");
+    card.className = "page-card";
+    card.dataset.idx = i;
+    // 페이지별 테마 override
+    if (p.theme && THEMES[p.theme]) {
+      const t = THEMES[p.theme];
+      for (const [k, v] of Object.entries(t.vars)) card.style.setProperty(k, v);
+    }
+    for (const it of (p.items || [])) {
+      const a = document.createElement("div"); a.className = "amount"; a.textContent = it.amount || "";
+      const l = document.createElement("div"); l.className = "label";  l.textContent = it.label  || "";
+      if (it.color) l.style.color = it.color;
+      card.append(a, l);
+    }
+    $pages.appendChild(card);
+  });
+  if (currentPageIdx >= state.pages.length) currentPageIdx = 0;
+  showPage(currentPageIdx);
+}
+
+function showPage(idx) {
+  const cards = $pages.querySelectorAll(".page-card");
+  cards.forEach((c, i) => c.classList.toggle("is-active", i === idx));
+}
+
+function restartRotation() {
+  if (rotateTimer) clearInterval(rotateTimer);
+  if (state.pages.length <= 1) { showPage(0); return; }
+  rotateTimer = setInterval(() => {
+    currentPageIdx = (currentPageIdx + 1) % state.pages.length;
+    showPage(currentPageIdx);
+  }, Math.max(1500, state.config.pageInterval | 0));
+}
+
+// URL ?preview=1 일 때 status 라벨 숨김
+if (new URLSearchParams(location.search).get("preview") === "1") {
+  $status.style.display = "none";
+}
+</script>
+</body>
+</html>

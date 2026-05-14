@@ -1,0 +1,18 @@
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyCQDqymj4vsoX-3C8nQ_-FtP2NcyCUEoqQ",
+  authDomain: "prism-sigtable.firebaseapp.com",
+  databaseURL: "https://prism-sigtable-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "prism-sigtable",
+  storageBucket: "prism-sigtable.firebasestorage.app",
+  messagingSenderId: "209657061204",
+  appId: "1:209657061204:web:55c93d48e092f9b372b2c1"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);

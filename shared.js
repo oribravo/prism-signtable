@@ -39,7 +39,7 @@ export const FONTS = [
 // 각 테마는 CSS 변수로 매핑. 항목별 라벨색은 별도 override 가능.
 export const THEMES = {
   clean: {
-    name: "투명 (기본)",
+    name: "투명·기본",
     vars: {
       "--panel-bg":      "transparent",
       "--panel-border":  "transparent",
@@ -54,6 +54,132 @@ export const THEMES = {
       "--label-weight":  "700",
       "--font-family":   "'Noto Sans KR', sans-serif",
       "--text-shadow":   "2px 2px 4px rgba(0,0,0,0.95), -1px -1px 2px rgba(0,0,0,0.7)"
+    }
+  },
+  outlineB: {
+    name: "투명·검정외곽",
+    vars: {
+      "--panel-bg":      "transparent",
+      "--panel-border":  "transparent",
+      "--panel-radius":  "0",
+      "--panel-padding": "0",
+      "--row-gap":       "2px",
+      "--amount-color":  "#FFFFFF",
+      "--amount-size":   "24px",
+      "--amount-weight": "900",
+      "--label-color":   "#FFFFFF",
+      "--label-size":    "24px",
+      "--label-weight":  "800",
+      "--font-family":   "'Black Han Sans', sans-serif",
+      "--text-shadow":   "-2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, -2px 0 0 #000, 2px 0 0 #000, 0 -2px 0 #000, 0 2px 0 #000, 0 0 6px rgba(0,0,0,0.65)"
+    }
+  },
+  outlineW: {
+    name: "투명·흰외곽",
+    vars: {
+      "--panel-bg":      "transparent",
+      "--panel-border":  "transparent",
+      "--panel-radius":  "0",
+      "--panel-padding": "0",
+      "--row-gap":       "2px",
+      "--amount-color":  "#1A1A1A",
+      "--amount-size":   "24px",
+      "--amount-weight": "900",
+      "--label-color":   "#1A1A1A",
+      "--label-size":    "24px",
+      "--label-weight":  "800",
+      "--font-family":   "'Black Han Sans', sans-serif",
+      "--text-shadow":   "-2px -2px 0 #FFF, 2px -2px 0 #FFF, -2px 2px 0 #FFF, 2px 2px 0 #FFF, -2px 0 0 #FFF, 2px 0 0 #FFF, 0 -2px 0 #FFF, 0 2px 0 #FFF, 0 0 6px rgba(255,255,255,0.75)"
+    }
+  },
+  softHalo: {
+    name: "투명·소프트섀도",
+    vars: {
+      "--panel-bg":      "transparent",
+      "--panel-border":  "transparent",
+      "--panel-radius":  "0",
+      "--panel-padding": "0",
+      "--row-gap":       "2px",
+      "--amount-color":  "#FFFFFF",
+      "--amount-size":   "24px",
+      "--amount-weight": "700",
+      "--label-color":   "#FFFFFF",
+      "--label-size":    "24px",
+      "--label-weight":  "600",
+      "--font-family":   "'Noto Sans KR', sans-serif",
+      "--text-shadow":   "0 0 18px rgba(0,0,0,0.95), 0 0 10px rgba(0,0,0,0.9), 0 0 4px rgba(0,0,0,0.85), 0 1px 2px rgba(0,0,0,0.9)"
+    }
+  },
+  goldGlow: {
+    name: "투명·골드빛",
+    vars: {
+      "--panel-bg":      "transparent",
+      "--panel-border":  "transparent",
+      "--panel-radius":  "0",
+      "--panel-padding": "0",
+      "--row-gap":       "2px",
+      "--amount-color":  "#FFD24A",
+      "--amount-size":   "24px",
+      "--amount-weight": "800",
+      "--label-color":   "#FFFFFF",
+      "--label-size":    "24px",
+      "--label-weight":  "700",
+      "--font-family":   "'Noto Sans KR', sans-serif",
+      "--text-shadow":   "-1px -1px 0 #4A2A00, 1px -1px 0 #4A2A00, -1px 1px 0 #4A2A00, 1px 1px 0 #4A2A00, 0 0 10px rgba(255,200,80,0.75), 0 0 20px rgba(255,160,0,0.5)"
+    }
+  },
+  pinkGlow: {
+    name: "투명·핑크빛",
+    vars: {
+      "--panel-bg":      "transparent",
+      "--panel-border":  "transparent",
+      "--panel-radius":  "0",
+      "--panel-padding": "0",
+      "--row-gap":       "2px",
+      "--amount-color":  "#FFFFFF",
+      "--amount-size":   "24px",
+      "--amount-weight": "800",
+      "--label-color":   "#FFC6E0",
+      "--label-size":    "24px",
+      "--label-weight":  "700",
+      "--font-family":   "'Jua', sans-serif",
+      "--text-shadow":   "-1px -1px 0 #6A1A45, 1px -1px 0 #6A1A45, -1px 1px 0 #6A1A45, 1px 1px 0 #6A1A45, 0 0 12px rgba(255,100,180,0.75), 0 0 22px rgba(255,60,150,0.5)"
+    }
+  },
+  cyanGlow: {
+    name: "투명·시안빛",
+    vars: {
+      "--panel-bg":      "transparent",
+      "--panel-border":  "transparent",
+      "--panel-radius":  "0",
+      "--panel-padding": "0",
+      "--row-gap":       "2px",
+      "--amount-color":  "#A8F4FF",
+      "--amount-size":   "24px",
+      "--amount-weight": "800",
+      "--label-color":   "#FFFFFF",
+      "--label-size":    "24px",
+      "--label-weight":  "700",
+      "--font-family":   "'Noto Sans KR', sans-serif",
+      "--text-shadow":   "-1px -1px 0 #003040, 1px -1px 0 #003040, -1px 1px 0 #003040, 1px 1px 0 #003040, 0 0 10px rgba(120,230,255,0.75), 0 0 22px rgba(0,180,230,0.55)"
+    }
+  },
+  popArt: {
+    name: "투명·팝아트",
+    vars: {
+      "--panel-bg":      "transparent",
+      "--panel-border":  "transparent",
+      "--panel-radius":  "0",
+      "--panel-padding": "0",
+      "--row-gap":       "3px",
+      "--amount-color":  "#FFEC44",
+      "--amount-size":   "24px",
+      "--amount-weight": "900",
+      "--label-color":   "#FFFFFF",
+      "--label-size":    "24px",
+      "--label-weight":  "800",
+      "--font-family":   "'Black Han Sans', sans-serif",
+      "--text-shadow":   "-2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, -2px 0 0 #000, 2px 0 0 #000, 0 -2px 0 #000, 0 2px 0 #000, 3px 3px 0 #FF3D00"
     }
   },
   classic: {

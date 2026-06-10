@@ -389,6 +389,7 @@ export const DEFAULT_DATA = {
     fontFamily:   "",          // 비우면 테마 기본 폰트 사용
     pageInterval: 5000,
     transitionMs: 500,
+    transitionType: "fade",    // fade/slide/slideup/zoomin/zoomout/blur/rotate/none
     canvasWidth:  300,
     canvasHeight: 400
   },

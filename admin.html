@@ -117,12 +117,16 @@
     </div>
   </div>
   <div class="row" style="margin-top:10px;">
+    <div class="grow" style="min-width:150px;">
+      <label>전환 효과</label>
+      <select id="cfg-transition-type"></select>
+    </div>
     <div style="width:130px;">
       <label>페이지 전환(ms)</label>
       <input id="cfg-interval" type="number" min="1500" step="500" />
     </div>
     <div style="width:130px;">
-      <label>페이드(ms)</label>
+      <label>전환 속도(ms)</label>
       <input id="cfg-transition" type="number" min="0" step="50" />
     </div>
     <div style="width:110px;">
@@ -173,6 +177,24 @@ for (const [k, v] of Object.entries(THEMES)) {
   o.value = k; o.textContent = v.name;
   $theme.appendChild(o);
 }
+// 전환 효과 옵션
+const TRANSITIONS = [
+  ["fade",    "페이드"],
+  ["slide",   "슬라이드 (좌우)"],
+  ["slideup", "슬라이드 (위로)"],
+  ["zoomin",  "줌인"],
+  ["zoomout", "줌아웃"],
+  ["blur",    "블러"],
+  ["rotate",  "회전"],
+  ["none",    "없음 (즉시)"]
+];
+const $trans = document.getElementById("cfg-transition-type");
+for (const [v, label] of TRANSITIONS) {
+  const o = document.createElement("option");
+  o.value = v; o.textContent = label;
+  $trans.appendChild(o);
+}
+
 // 폰트 옵션 (첫 칸은 "테마 기본")
 const $font = document.getElementById("cfg-font");
 {
@@ -214,6 +236,9 @@ document.getElementById("cfg-interval").addEventListener("change", e => {
 document.getElementById("cfg-transition").addEventListener("change", e => {
   state.config.transitionMs = Math.max(0, +e.target.value || 500); saveConfig();
 });
+document.getElementById("cfg-transition-type").addEventListener("change", e => {
+  state.config.transitionType = e.target.value || "fade"; saveConfig();
+});
 document.getElementById("cfg-w").addEventListener("change", e => {
   state.config.canvasWidth = Math.max(100, +e.target.value || 300); saveConfig();
 });
@@ -235,6 +260,7 @@ function renderAll() {
   document.getElementById("cfg-font").value       = state.config.fontFamily || "";
   document.getElementById("cfg-interval").value   = state.config.pageInterval;
   document.getElementById("cfg-transition").value = state.config.transitionMs;
+  document.getElementById("cfg-transition-type").value = state.config.transitionType || "fade";
   document.getElementById("cfg-w").value          = state.config.canvasWidth;
   document.getElementById("cfg-h").value          = state.config.canvasHeight;
 
@@ -271,7 +297,7 @@ function renderPages() {
       <div class="row" style="margin-bottom:8px;">
         <div class="grow">
           <label>화면 헤더 (선택 — 비우면 표시 안 함)</label>
-          <input type="text" class="page-header-input" placeholder="예: 💎 VIP 시그송 💎">
+          <input type="text" class="page-header-input" placeholder="예: VIP시그">
         </div>
       </div>
       <div class="row" style="margin-bottom:8px; gap:8px;">

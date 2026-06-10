@@ -38,13 +38,38 @@
     align-items: baseline;
     text-shadow: var(--text-shadow);
     opacity: 0;
-    transition: opacity var(--transition-ms, 500ms) ease;
+    transition: opacity var(--transition-ms, 500ms) ease,
+                transform var(--transition-ms, 500ms) ease,
+                filter var(--transition-ms, 500ms) ease;
     width: 100%;
     position: absolute;
     top: 0; left: 0;
+    transform-origin: center center;
     font-family: var(--font-family);
   }
   .page-card.is-active { opacity: 1; position: relative; }
+
+  /* ── 페이지 전환 효과 (#pages-panel 의 fx-* 클래스로 제어) ── */
+  /* fx-fade(기본): 추가 변형 없음, opacity 만 */
+  #pages-panel.fx-slide   .page-card           { transform: translateX(60px); }
+  #pages-panel.fx-slide   .page-card.is-active { transform: translateX(0); }
+
+  #pages-panel.fx-slideup .page-card           { transform: translateY(40px); }
+  #pages-panel.fx-slideup .page-card.is-active { transform: translateY(0); }
+
+  #pages-panel.fx-zoomin  .page-card           { transform: scale(0.80); }
+  #pages-panel.fx-zoomin  .page-card.is-active { transform: scale(1); }
+
+  #pages-panel.fx-zoomout .page-card           { transform: scale(1.15); }
+  #pages-panel.fx-zoomout .page-card.is-active { transform: scale(1); }
+
+  #pages-panel.fx-blur    .page-card           { filter: blur(10px); }
+  #pages-panel.fx-blur    .page-card.is-active { filter: blur(0); }
+
+  #pages-panel.fx-rotate  .page-card           { transform: rotate(-4deg) scale(0.9); }
+  #pages-panel.fx-rotate  .page-card.is-active { transform: rotate(0) scale(1); }
+
+  #pages-panel.fx-none    .page-card           { transition: none; }
   .page-card .amount {
     color: var(--amount-color);
     font-size: var(--amount-size);
@@ -111,12 +136,14 @@ let rotateTimer = null;
 
 applyTheme(root, state.config.activeTheme, state.config.fontFamily);
 applyCanvas();
+applyTransition();
 root.style.setProperty("--transition-ms", state.config.transitionMs + "ms");
 
 onValue(rootRef, (snap) => {
   state = normalizeData(snap.val());
   applyTheme(root, state.config.activeTheme, state.config.fontFamily);
   applyCanvas();
+  applyTransition();
   root.style.setProperty("--transition-ms", state.config.transitionMs + "ms");
   renderPages();
   restartRotation();
@@ -133,6 +160,11 @@ function applyCanvas() {
   const h = urlH || state.config.canvasHeight || 400;
   root.style.setProperty("--canvas-w", w + "px");
   root.style.setProperty("--canvas-h", h + "px");
+}
+
+function applyTransition() {
+  const t = state.config.transitionType || "fade";
+  $pages.className = "fx-" + t;
 }
 
 function renderPages() {

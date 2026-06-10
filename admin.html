@@ -223,7 +223,7 @@ document.getElementById("cfg-h").addEventListener("change", e => {
 
 document.getElementById("page-add").addEventListener("click", () => {
   state.pages.push({
-    id: "p" + Date.now(), name: "새 페이지", theme: null, fontFamily: null,
+    id: "p" + Date.now(), name: "새 페이지", header: "", theme: null, fontFamily: null,
     items: [{ amount: "0", label: "새 항목", color: null }]
   });
   savePages();
@@ -251,7 +251,8 @@ function renderPages() {
   $list.innerHTML = "";
   state.pages.forEach((page, pi) => {
     const effectiveTheme = page.theme || state.config.activeTheme;
-    const maxItems = maxItemsPerPage(state.config.canvasHeight, effectiveTheme);
+    const hasHeader = !!(page.header && page.header.trim());
+    const maxItems = maxItemsPerPage(state.config.canvasHeight, effectiveTheme, hasHeader);
     const count    = page.items.length;
     let countClass = "count";
     if (count > maxItems)        countClass = "count over";
@@ -266,6 +267,12 @@ function renderPages() {
         <button class="ghost btn-up"   title="위로">▲</button>
         <button class="ghost btn-down" title="아래로">▼</button>
         <button class="danger btn-del" title="페이지 삭제">×</button>
+      </div>
+      <div class="row" style="margin-bottom:8px;">
+        <div class="grow">
+          <label>화면 헤더 (선택 — 비우면 표시 안 함)</label>
+          <input type="text" class="page-header-input" placeholder="예: 💎 VIP 시그송 💎">
+        </div>
       </div>
       <div class="row" style="margin-bottom:8px; gap:8px;">
         <div class="grow" style="min-width:140px;">
@@ -291,6 +298,11 @@ function renderPages() {
     `;
     card.querySelector(".page-name").addEventListener("blur", e => {
       page.name = e.target.textContent.trim() || "(이름 없음)"; savePages();
+    });
+    const headerInp = card.querySelector(".page-header-input");
+    headerInp.value = page.header || "";
+    headerInp.addEventListener("change", e => {
+      page.header = e.target.value; savePages();
     });
     const themeSel = card.querySelector(".page-theme");
     themeSel.value = page.theme || "";

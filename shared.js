@@ -354,14 +354,16 @@ export function applyPageOverride(cardEl, page, globalFont) {
 
 // 캔버스 높이 + 테마에서 최대 항목 수 계산.
 // 보수적으로 잡아서 잘림 방지.
-export function maxItemsPerPage(canvasHeight, themeKey) {
+export function maxItemsPerPage(canvasHeight, themeKey, hasHeader = false) {
   const t = THEMES[themeKey] || THEMES.clean;
   const fontSize  = parseInt(t.vars["--amount-size"]) || 24;
   const rowGap    = parseInt(t.vars["--row-gap"]) || 2;
   const padTop    = parseInt((t.vars["--panel-padding"] || "0").split(/\s+/)[0]) || 0;
   const padBot    = padTop;
   const lineH     = Math.ceil(fontSize * 1.35);   // 한글 line-height 여유
-  const available = canvasHeight - padTop - padBot;
+  let available   = canvasHeight - padTop - padBot;
+  // 헤더가 있으면 한 줄 + 여백만큼 항목 공간을 줄여 잘림 방지
+  if (hasHeader) available -= Math.ceil(fontSize * 1.15 * 1.2) + 10;
   return Math.max(1, Math.floor((available + rowGap) / (lineH + rowGap)));
 }
 
@@ -380,6 +382,7 @@ export function normalizeData(data) {
   d.pages = d.pages.map(p => ({
     id:         p.id || ("p" + Math.random().toString(36).slice(2,8)),
     name:       p.name || "(이름 없음)",
+    header:     p.header || "",
     theme:      p.theme || null,
     fontFamily: p.fontFamily || null,
     items:      toArray(p?.items)

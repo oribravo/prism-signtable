@@ -33,7 +33,7 @@
     border-radius: var(--panel-radius);
     padding: var(--panel-padding);
     display: grid;
-    grid-template-columns: auto 1fr;
+    grid-template-columns: var(--amount-col, auto) 1fr;
     gap: var(--row-gap) 16px;
     align-items: baseline;
     text-shadow: var(--text-shadow);
@@ -60,6 +60,21 @@
     font-weight: var(--label-weight);
     white-space: nowrap;
     line-height: 1.25;
+  }
+  /* 페이지 헤더(선택) — 카드 상단 전체폭 제목 */
+  .page-card .page-header {
+    grid-column: 1 / -1;
+    min-width: 0;
+    text-align: center;
+    color: var(--amount-color);
+    font-size: calc(var(--amount-size) * 1.15);
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 4px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--panel-border);
+    white-space: normal;
+    word-break: keep-all;
   }
 
   #status {
@@ -127,6 +142,12 @@ function renderPages() {
     card.className = "page-card";
     card.dataset.idx = i;
     applyPageOverride(card, p, state.config.fontFamily);
+    if (p.header && p.header.trim()) {
+      const h = document.createElement("div");
+      h.className = "page-header";
+      h.textContent = p.header;
+      card.appendChild(h);
+    }
     for (const it of (p.items || [])) {
       const a = document.createElement("div"); a.className = "amount"; a.textContent = it.amount || "";
       const l = document.createElement("div"); l.className = "label";  l.textContent = it.label  || "";
@@ -136,7 +157,20 @@ function renderPages() {
     $pages.appendChild(card);
   });
   if (currentPageIdx >= state.pages.length) currentPageIdx = 0;
+  alignAmounts();
   showPage(currentPageIdx);
+}
+
+// 모든 페이지를 통틀어 가장 긴 금액 폭으로 금액 칼럼 폭을 고정.
+// → 자릿수가 다른 페이지로 전환돼도 숫자 우측 정렬·라벨 시작점이 일정.
+function alignAmounts() {
+  root.style.setProperty("--amount-col", "auto");
+  let max = 0;
+  $pages.querySelectorAll(".amount").forEach(el => {
+    const w = el.getBoundingClientRect().width;
+    if (w > max) max = w;
+  });
+  if (max > 0) root.style.setProperty("--amount-col", Math.ceil(max) + "px");
 }
 
 function showPage(idx) {
@@ -154,6 +188,9 @@ function restartRotation() {
 }
 
 if (params.get("preview") === "1") $status.style.display = "none";
+
+// 웹폰트 로딩 완료 후 폭이 바뀌므로 금액 칼럼 재정렬
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(alignAmounts);
 </script>
 </body>
 </html>

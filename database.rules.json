@@ -1,0 +1,52 @@
+{
+  "rules": {
+    // 기본은 전부 차단. 아래 signtable 아래에서만 예외적으로 허용한다.
+    ".read": false,
+    ".write": false,
+
+    "signtable": {
+      // 화면(index.html)은 누구나 읽어야 하므로 읽기는 공개.
+      ".read": true,
+
+      // ── 쓰기 권한 ──────────────────────────────────────────
+      // [권장 / Tier 2] 익명 인증을 켠 뒤 아래 한 줄을 사용:
+      ".write": "auth != null",
+      // [코드 수정 없이 급한 경우 / Tier 1] 위 줄을 지우고 아래 줄로 교체:
+      // ".write": true,
+
+      // ── config 검증 ───────────────────────────────────────
+      "config": {
+        "activeTheme":    { ".validate": "newData.isString() && newData.val().length < 40" },
+        "fontFamily":     { ".validate": "newData.isString() && newData.val().length < 40" },
+        "pageInterval":   { ".validate": "newData.isNumber() && newData.val() >= 200 && newData.val() <= 600000" },
+        "transitionMs":   { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10000" },
+        "transitionType": { ".validate": "newData.isString() && newData.val().length < 20" },
+        "canvasWidth":    { ".validate": "newData.isNumber() && newData.val() >= 50 && newData.val() <= 4000" },
+        "canvasHeight":   { ".validate": "newData.isNumber() && newData.val() >= 50 && newData.val() <= 4000" },
+        "$other": { ".validate": false }
+      },
+
+      // ── pages 검증 (배열 = 인덱스 자식) ────────────────────
+      "pages": {
+        "$index": {
+          "id":         { ".validate": "newData.isString() && newData.val().length < 40" },
+          "name":       { ".validate": "newData.isString() && newData.val().length < 60" },
+          "header":     { ".validate": "newData.isString() && newData.val().length < 80" },
+          "theme":      { ".validate": "newData.isString() && newData.val().length < 40" },
+          "fontFamily": { ".validate": "newData.isString() && newData.val().length < 40" },
+          "items": {
+            "$i": {
+              "amount": { ".validate": "newData.isString() && newData.val().length < 30" },
+              "label":  { ".validate": "newData.isString() && newData.val().length < 60" },
+              "color":  { ".validate": "newData.isString() && newData.val().length < 30" },
+              "$o": { ".validate": false }
+            }
+          },
+          "$other": { ".validate": false }
+        }
+      },
+
+      "$other": { ".validate": false }
+    }
+  }
+}

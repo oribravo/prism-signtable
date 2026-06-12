@@ -161,11 +161,14 @@
 
 <script type="module">
 import {
-  rootRef, db, ref, onValue, set, get
+  app, rootRef, db, ref, onValue, set, get
 } from "./shared.js";
 import {
   THEMES, FONTS, DEFAULT_DATA, normalizeData, maxItemsPerPage
 } from "./shared.js";
+import {
+  getAuth, signInAnonymously
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 let state = JSON.parse(JSON.stringify(DEFAULT_DATA));
 const $conn = document.getElementById("conn-badge");
@@ -219,9 +222,21 @@ onValue(rootRef, (snap) => {
   console.error(err);
 });
 
-get(rootRef).then(snap => {
-  if (!snap.exists()) set(rootRef, DEFAULT_DATA);
-});
+// ── 익명 인증 ───────────────────────────────────────────────
+// 로그인 화면 없이 자동으로 인증 토큰을 받아 쓰기 권한을 확보한다.
+// (index.html은 읽기 전용이라 인증 불필요. 보안 규칙의 ".write": "auth != null" 과 짝)
+const auth = getAuth(app);
+signInAnonymously(auth)
+  .then(() => {
+    // 최초 1회: 데이터가 없으면 기본값 생성
+    get(rootRef).then(snap => {
+      if (!snap.exists()) set(rootRef, DEFAULT_DATA);
+    });
+  })
+  .catch((err) => {
+    $conn.textContent = "인증 오류"; $conn.className = "badge err";
+    console.error("anon auth:", err);
+  });
 
 // 전역 핸들러
 document.getElementById("cfg-theme").addEventListener("change", e => {
